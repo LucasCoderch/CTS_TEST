@@ -1,22 +1,26 @@
-"""
-URL configuration for cts_backend project.
-
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/5.2/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
-"""
 from django.contrib import admin
+from django.http import JsonResponse
 from django.urls import path
 
+# importa las vistas de API
+from raffle.api import ParticipantListView, RaffleDrawView
+from users.api import RegisterView, VerifyEmailView
+
+def root(request):
+    # endpoint de salud en /
+    return JsonResponse({"status": "ok", "app": "CTS API", "version": 1})
+
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path("", root, name="root"),
+
+    # Admin
+    path("admin/", admin.site.urls),
+
+    # API pública (registro y verificación por correo)
+    path("api/register/", RegisterView.as_view(), name="register"),
+    path("api/verify/<str:token>/", VerifyEmailView.as_view(), name="verify-email"),
+
+    # API para admin (listar y sortear)
+    path("api/participants/", ParticipantListView.as_view(), name="participants-list"),
+    path("api/raffle/draw/", RaffleDrawView.as_view(), name="raffle-draw"),
 ]
